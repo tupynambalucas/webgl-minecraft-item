@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGL Minecraft</title>
+    
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            border: 0;
+        }
+        html,body{
+            text-align: center;
+            background: black;
+        }
+        h1{
+            position: relative;
+            margin-top: 2vh;
+            color: snow;
+            top: 5vh;
+        }
+        #cena{
+            position: absolute;
+            width: 100%!important;
+            height: 99vh!important;
+            top: 0!important;
+            left: 0!important;
+        }
+    </style>
+</head>
+<body>
+    <h1>Minecraft WebGL model</h1>
+    <div id="cena"></div>
+    <script type="module">
+
+        import * as THREE from './three/three.module.js';
+        import { GLTFLoader } from './three/loaders/GLTFLoader.js';
+
+        // Cena
+        const scene = new THREE.Scene();
+
+        // Camera
+        const camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+        // Render
+        const renderer = new THREE.WebGLRenderer({alpha: true});
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        // Canvas
+        const div = document.getElementById('cena');
+        div.appendChild( renderer.domElement );
+
+        const loader = new GLTFLoader();
+        const textureLoader = new THREE.TextureLoader();
+        const colorMap = textureLoader.load('./three/texturas/magmatextureanim.png')
+        
+        // Posicionando a camera
+        camera.position.z = 150
+        camera.position.y = 100
+
+
+        loader.load(
+        // Caminho pro arquivo
+        './three/models/cajado-magma.gltf',
+
+            // Função chamada quando o arquivo é carregado
+            function ( gltf ) { 
+
+                gltf.animations; // Array<THREE.AnimationClip>
+                gltf.scene; // THREE.Group
+                gltf.scenes; // Array<THREE.Group>
+                gltf.cameras; // Array<THREE.Camera>
+                gltf.asset; // Object
+
+                // Empurrando objeto para variavel
+                let object = gltf.scene
+
+                object.position.set(0, 40, 0);
+                object.scale.set(70,70,70);
+                object.name = 'magma';
+                
+                // Adicionando objeto a cena
+                scene.add(object)
+
+                // Futura att
+
+                // object.traverse( function ( child ) {
+				// 	if ( child instanceof THREE.Object3D  ) {
+				// //		console.log(child.name +"test")
+				// 	if(child.name=='topo-cajado'){
+                //         alert("sim")
+				// 		console.log(child)
+				// 	//	child.material.color.setHex(0xffff00);
+				// 	}
+				// 	}
+				// } );
+            },
+
+            // Função de carregamento
+            function ( xhr ) {
+
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+            },
+            // Função em caso de erro
+            function ( error ) {
+
+                console.log( 'An error happened' );
+                console.log(error)
+            }
+        );
+
+        // Adicionando luz a cena
+        const light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 100 );
+        const light2 = new THREE.PointLight( 0xff0000, 1, 100 );
+        scene.add(light)
+        scene.add(light2)
+
+        // Animação
+        const animate = function () {
+			requestAnimationFrame( animate );
+            let magma = scene.getObjectByName("magma")
+            magma.rotation.y+= 0.01;
+
+
+            renderer.render( scene, camera );
+        };
+
+        animate();  
+    </script>
+</body>
+</html>
